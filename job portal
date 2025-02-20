@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Cards</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .card { border: 1px solid #ddd; padding: 10px; margin: 10px; text-align: center; position: relative; }
+        .card img { width: 80px; height: 80px; border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <input type="text" id="name" placeholder="Name">
+    <input type="text" id="bio" placeholder="Bio">
+    <input type="file" id="image">
+    <button id="add">Add</button>
+    <div id="cards"></div>
+
+    <script>
+        $(document).ready(function () {
+            function loadCards() {
+                $('#cards').html('');
+                let users = JSON.parse(localStorage.getItem('users')) || [];
+                users.forEach((user, i) => {
+                    let card = $(`
+                        <div class="card" data-index="${i}">
+                            <img src="${user.image}" alt="User">
+                            <p><b>Name:</b> <span class="name">${user.name}</span></p>
+                            <p><b>Bio:</b> <span class="bio">${user.bio}</span></p>
+                            <button class="edit-btn">Edit</button>
+                            <button class="delete-btn">Delete</button>
+                        </div>`);
+                    
+                    card.find('.edit-btn').click(function () {
+                        $('#name').val(user.name);
+                        $('#bio').val(user.bio);
+                        $('#add').text('Update').off('click').click(function () {
+                            users[i].name = $('#name').val();
+                            users[i].bio = $('#bio').val();
+                            localStorage.setItem('users', JSON.stringify(users));
+                            loadCards();
+                            $(this).text('Add').off('click').click(addUser);
+                        });
+                    });
+                    
+                    card.find('.delete-btn').click(function () {
+                        users.splice(i, 1);
+                        localStorage.setItem('users', JSON.stringify(users));
+                        loadCards();
+                    });
+                    
+                    $('#cards').append(card);
+                });
+            }
+
+            function addUser() {
+                let name = $('#name').val(), bio = $('#bio').val(), file = $('#image')[0].files[0];
+                if (!name || !bio || !file) return alert('Fill all fields');
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    let users = JSON.parse(localStorage.getItem('users')) || [];
+                    users.push({ name, bio, image: e.target.result });
+                    localStorage.setItem('users', JSON.stringify(users));
+                    loadCards();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            $('#add').click(addUser);
+            loadCards();
+        });
+    </script>
+</body>
+</html>
