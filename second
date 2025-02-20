@@ -1,0 +1,15 @@
+<script>
+        $(document).ready(function () {
+            $("#registerForm").on("submit", function (e) {
+                $(".error").text(""); // Clear errors
+                let valid = true;
+
+                if ($("#name").val().trim() === "") { $("#name").next().text("Name required"); valid = false; }
+                if ($("#password").val().length < 6) { $("#password").next().text("Min 6 characters"); valid = false; }
+                if (!$("#email").val().includes("@")) { $("#email").next().text("Invalid email"); valid = false; }
+                if (!/^\d{10}$/.test($("#phone").val())) { $("#phone").next().text("Must be 10 digits"); valid = false; }
+
+                if (!valid) e.preventDefault(); // Stop submission if invalid
+            });
+        });
+    </script>
